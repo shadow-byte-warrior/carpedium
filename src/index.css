@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #ffffff;
+  --color-surface-alt: #f8fafc;
+  --color-primary: #14b8a6;
+  --color-primary-light: #2dd4bf;
+  --color-primary-strong: #0f766e;
+  --color-accent: #0ea5e9;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-ink: #0f172a;
+  --color-ink-dim: #64748b;
+  --color-line: #e2e8f0;
+
+  --color-obsidian: #0a1412;
+  --color-obsidian-2: #0f1b18;
+  --color-teal: #14b8a6;
+  --color-teal-bright: #2dd4bf;
+  --color-off-white: #edece3;
+  --color-off-white-dim: #a8b0ac;
+
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 24px -10px rgba(15, 23, 42, 0.10);
+  --shadow-card-hover: 0 4px 8px rgba(15, 23, 42, 0.06), 0 20px 40px -14px rgba(15, 23, 42, 0.16);
+  --shadow-glow-primary: 0 0 0 1px color-mix(in srgb, var(--color-primary) 25%, transparent), 0 10px 28px -10px color-mix(in srgb, var(--color-primary) 45%, transparent);
+
+  --animate-pulse-slow: pulse-slow 4s ease-in-out infinite;
+  --animate-glow-pulse: glow-pulse 3s ease-in-out infinite;
+  --animate-marquee: marquee 28s linear infinite;
+  --animate-shimmer: shimmer 1.8s ease-in-out infinite;
+
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 0.35; }
+    50% { opacity: 0.85; }
+  }
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 10px 1px color-mix(in srgb, var(--color-primary) 35%, transparent); }
+    50% { box-shadow: 0 0 20px 5px color-mix(in srgb, var(--color-primary-light) 45%, transparent); }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+}
+
+/* next/font injects its CSS variables on <html> at runtime, so the font
+   theme keys must stay indirected through `inline` rather than baked in. */
+@theme inline {
+  --font-display: var(--font-space-grotesk);
+  --font-body: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  line-height: 1.6;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-primary) 30%, transparent);
+  color: var(--color-ink);
+}
+
+/* Consistent, visible focus ring for keyboard nav — never suppressed */
+:focus-visible {
+  outline: 2px solid var(--color-primary-strong);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+  color: var(--color-primary-strong);
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-alt) 25%,
+    #eef2f7 50%,
+    var(--color-surface-alt) 75%
+  );
+  background-size: 200% 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Premium UI Utilities */
+.glassmorphism {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.glassmorphism-dark {
+  background: rgba(15, 27, 24, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glassmorphism-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(20, 184, 166, 0.12);
+  box-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.03);
+}
+
+.glassmorphism-card:hover {
+  border-color: rgba(20, 184, 166, 0.35);
+  box-shadow: 0 12px 40px 0 rgba(20, 184, 166, 0.08);
+}
+
+.gradient-mesh {
+  background-color: #ffffff;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(45, 212, 191, 0.12) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(14, 165, 233, 0.12) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(20, 184, 166, 0.08) 0px, transparent 50%);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-primary-strong) 0%, var(--color-accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(2deg); }
+}
+
+@keyframes float-medium {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(-1.5deg); }
+}
+
+.animate-float-1 {
+  animation: float-slow 8s ease-in-out infinite;
+}
+
+.animate-float-2 {
+  animation: float-medium 6s ease-in-out infinite;
+}
