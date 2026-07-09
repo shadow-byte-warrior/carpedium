@@ -68,7 +68,7 @@ export default function Hero() {
                 data-edit-path="hero.eyebrow"
                 className="font-mono text-[10px] font-bold uppercase tracking-wider text-teal-700"
               >
-                {settings.hero.eyebrow || "Smart Digital Solutions for the Future"}
+                {(settings.hero.eyebrow || "").trim() || "Coimbatore's Premier Software Engineering Academy"}
               </span>
             </div>
 
@@ -79,7 +79,7 @@ export default function Hero() {
               data-edit-path="hero.title"
               className="text-4xl sm:text-5xl lg:text-6xl font-display font-black text-slate-900 tracking-tight leading-[1.1]"
             >
-              {settings.hero.title || "Smart Tech Solutions for AI, IoT, Cloud & Automation Excellence"}
+              {(settings.hero.title || "").trim() || "Build What's Next. The Skills Behind Tomorrow's Technology."}
             </h1>
 
             <p 
@@ -89,7 +89,7 @@ export default function Hero() {
               data-edit-path="hero.subtitle"
               className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-xl"
             >
-              {settings.hero.subtitle || "Build, automate, and scale your digital future — with powerful technology tailored to your business. We empower startups, enterprises, and institutions through next-gen solutions."}
+              {(settings.hero.subtitle || "").trim() || "Master Full-Stack Development, Artificial Intelligence, Cloud Computing, and Cybersecurity through project-based learning, expert mentorship, internships, and industry-recognized certifications."}
             </p>
 
             {renderCustomElements("hero", settings.custom_elements)}

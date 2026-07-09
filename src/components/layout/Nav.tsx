@@ -50,20 +50,20 @@ export default function Nav({ activeSection, onEnrollClick }: NavProps) {
           href="#hero"
           onClick={handleClick("#hero")}
           onMouseEnter={playTick}
-          className="flex items-center gap-2.5 font-display text-sm font-bold tracking-wider text-ink transition-transform hover:scale-[1.02]"
+          className="flex items-center gap-2.5 font-display text-sm font-bold tracking-wider text-ink transition-transform hover:scale-[1.02] shrink-0"
         >
           <img
             src={settings.branding.logo}
             alt={settings.branding.brandName}
             width={32}
             height={32}
-            className="rounded-full ring-2 ring-primary/20"
+            className="rounded-full ring-2 ring-primary/20 shrink-0"
           />
-          <span className="hidden sm:inline font-mono tracking-widest text-[13px] uppercase">{settings.branding.brandName}</span>
+          <span className="hidden sm:inline font-mono tracking-widest text-[11px] md:text-[13px] uppercase whitespace-nowrap">{settings.branding.brandName}</span>
         </a>
 
         {/* Desktop Links */}
-        <ul className="hidden items-center gap-7 md:flex">
+        <ul className="hidden items-center gap-4 lg:gap-7 md:flex shrink-0">
           {LINKS.map((link) => {
             const isActive = activeSection === link.href.slice(1);
             return (
@@ -84,13 +84,13 @@ export default function Nav({ activeSection, onEnrollClick }: NavProps) {
         </ul>
 
         {/* CTA */}
-        <div className="hidden items-center gap-4 md:flex">
+        <div className="hidden items-center gap-4 md:flex shrink-0">
           <button
             onClick={() => {
               playTick();
               onEnrollClick();
             }}
-            className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2 font-mono text-[11px] font-bold uppercase tracking-wider text-white shadow-sm transition-all hover:bg-primary-light hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+            className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2 font-mono text-[11px] font-bold uppercase tracking-wider text-white shadow-sm transition-all hover:bg-primary-light hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 cursor-pointer whitespace-nowrap shrink-0"
           >
             Enroll Now
           </button>
