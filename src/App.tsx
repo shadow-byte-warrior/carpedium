@@ -42,6 +42,7 @@ import StyleOverrides from "@/editor/StyleOverrides";
 import CanvasRuntime from "@/editor/CanvasRuntime";
 
 import { type Course } from "@/data/courses";
+import { useSettings } from "@/hooks/useSettings";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://script.google.com/macros/s/AKfycbzf4_Vj066n-X_5ZJ7B2D2V_M73r6yBNDq4-vQ/exec";
 
