@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
 import Nav from "@/components/layout/Nav";
 import Footer from "@/components/layout/Footer";
@@ -48,7 +48,7 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://script.google.c
 
 type ViewState = "portal" | "admin" | "success" | "courses" | "course-detail";
 
-const queryClient = new QueryClient();
+
 
 const SECTION_COMPONENTS: Record<string, (props: any) => React.JSX.Element> = {
   hero: () => <Hero />,
@@ -154,7 +154,7 @@ export default function App() {
   };
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <>
       <SettingsEffects />
       <StyleOverrides />
       <CanvasRuntime />
@@ -224,6 +224,6 @@ export default function App() {
           </SmoothScrollProvider>
         )}
       </div>
-    </QueryClientProvider>
+    </>
   );
 }
