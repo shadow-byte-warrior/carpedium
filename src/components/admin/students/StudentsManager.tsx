@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { toast, confirm } from "@/lib/toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import {
@@ -118,28 +119,30 @@ export default function StudentsManager() {
   useEffect(() => { setPage(1); }, [search, filters, sort]);
 
   const handleDelete = async (id: string, name: string) => {
-    if (confirm(`Delete student "${name}"?`)) {
+    const yes = await confirm({ title: `Delete "${name}"?`, message: "All student data will be permanently removed.", danger: true, confirmLabel: "Delete" });
+    if (yes) {
       const { error } = await supabase.from("students").delete().eq("id", id);
-      if (error) alert("Error: " + error.message);
-      else refetch();
+      if (error) toast.error("Error: " + error.message);
+      else { toast.success("Student deleted."); refetch(); }
     }
   };
 
   const handleBulkAction = async (action: "delete" | "publish" | "archive" | "export") => {
     if (checked.size === 0) return;
     if (action === "delete") {
-      if (!confirm(`Delete ${checked.size} selected student(s)?`)) return;
+      const yes = await confirm({ title: `Delete ${checked.size} student(s)?`, message: "All student data will be permanently removed.", danger: true, confirmLabel: "Delete All" });
+      if (!yes) return;
       const { error } = await supabase.from("students").delete().in("id", Array.from(checked));
-      if (error) alert("Error: " + error.message);
-      else { setChecked(new Set()); refetch(); }
+      if (error) toast.error("Error: " + error.message);
+      else { toast.success(`${checked.size} student(s) deleted.`); setChecked(new Set()); refetch(); }
     } else if (action === "publish") {
       const { error } = await supabase.from("students").update({ status: "active" }).in("id", Array.from(checked));
-      if (error) alert("Error: " + error.message);
-      else { setChecked(new Set()); refetch(); }
+      if (error) toast.error("Error: " + error.message);
+      else { toast.success(`${checked.size} student(s) marked active.`); setChecked(new Set()); refetch(); }
     } else if (action === "archive") {
       const { error } = await supabase.from("students").update({ status: "completed" }).in("id", Array.from(checked));
-      if (error) alert("Error: " + error.message);
-      else { setChecked(new Set()); refetch(); }
+      if (error) toast.error("Error: " + error.message);
+      else { toast.success(`${checked.size} student(s) marked completed.`); setChecked(new Set()); refetch(); }
     } else if (action === "export") {
       exportCSV();
     }
@@ -157,8 +160,8 @@ export default function StudentsManager() {
     copy.email = copy.email ? `copy.${Date.now()}.${copy.email}` : null;
     
     const { error } = await supabase.from("students").insert(copy);
-    if (error) alert("Error duplicating: " + error.message);
-    else refetch();
+    if (error) toast.error("Error duplicating: " + error.message);
+    else { toast.success("Student duplicated."); refetch(); }
   };
 
   const toggle = (id: string) =>

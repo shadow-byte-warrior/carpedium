@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { toast, confirm } from "@/lib/toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { Loader2, Plus, Edit, Trash2, Users, Briefcase, Award, Copy, Globe, Eye } from "lucide-react";
@@ -118,28 +119,30 @@ export default function MentorsManager() {
   useEffect(() => { setPage(1); }, [search, filters, sort]);
 
   const handleDelete = async (id: string, name: string) => {
-    if (confirm(`Are you sure you want to delete "${name}"?`)) {
+    const yes = await confirm({ title: `Delete "${name}"?`, message: "This action cannot be undone.", danger: true, confirmLabel: "Delete" });
+    if (yes) {
       const { error } = await supabase.from("mentors").delete().eq("id", id);
-      if (error) alert("Error deleting mentor: " + error.message);
-      else refetch();
+      if (error) toast.error("Error deleting mentor: " + error.message);
+      else { toast.success("Mentor deleted."); refetch(); }
     }
   };
 
   const handleBulkAction = async (action: "delete" | "publish" | "archive" | "export") => {
     if (checked.size === 0) return;
     if (action === "delete") {
-      if (!confirm(`Delete ${checked.size} selected mentor(s)?`)) return;
+      const yes = await confirm({ title: `Delete ${checked.size} mentor(s)?`, message: "This action cannot be undone.", danger: true, confirmLabel: "Delete All" });
+      if (!yes) return;
       const { error } = await supabase.from("mentors").delete().in("id", Array.from(checked));
-      if (error) alert("Error: " + error.message);
-      else { setChecked(new Set()); refetch(); }
+      if (error) toast.error("Error: " + error.message);
+      else { toast.success(`${checked.size} mentor(s) deleted.`); setChecked(new Set()); refetch(); }
     } else if (action === "publish") {
       const { error } = await supabase.from("mentors").update({ status: "active" }).in("id", Array.from(checked));
-      if (error) alert("Error: " + error.message);
-      else { setChecked(new Set()); refetch(); }
+      if (error) toast.error("Error: " + error.message);
+      else { toast.success(`${checked.size} mentor(s) set active.`); setChecked(new Set()); refetch(); }
     } else if (action === "archive") {
       const { error } = await supabase.from("mentors").update({ status: "hidden" }).in("id", Array.from(checked));
-      if (error) alert("Error: " + error.message);
-      else { setChecked(new Set()); refetch(); }
+      if (error) toast.error("Error: " + error.message);
+      else { toast.success(`${checked.size} mentor(s) hidden.`); setChecked(new Set()); refetch(); }
     } else if (action === "export") {
       exportCSV();
     }
@@ -155,8 +158,8 @@ export default function MentorsManager() {
     copy.display_order = (copy.display_order ?? 0) + 1;
     
     const { error } = await supabase.from("mentors").insert(copy);
-    if (error) alert("Error duplicating: " + error.message);
-    else refetch();
+    if (error) toast.error("Error duplicating: " + error.message);
+    else { toast.success("Mentor duplicated."); refetch(); }
   };
 
   const handleSuccess = () => {

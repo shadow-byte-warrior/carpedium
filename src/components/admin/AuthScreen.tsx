@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "@/lib/toast";
 import { supabase } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Eye, EyeOff, Check, ArrowRight } from "lucide-react";
@@ -151,7 +152,7 @@ export default function AuthScreen({ onLogin }: { onLogin: (session: any) => voi
                   </label>
                   <button
                     type="button"
-                    onClick={() => alert("Credentials: admin@carpediem.tech / AdminPassword123!")}
+                    onClick={() => toast.info("Credentials: admin@carpediem.tech / AdminPassword123!")}
                     className="text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:underline"
                   >
                     Forgot Password?

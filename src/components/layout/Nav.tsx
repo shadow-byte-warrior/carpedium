@@ -19,9 +19,10 @@ const LINKS = [
 type NavProps = {
   activeSection: string;
   onEnrollClick: () => void;
+  onAdminClick?: () => void;
 };
 
-export default function Nav({ activeSection, onEnrollClick }: NavProps) {
+export default function Nav({ activeSection, onEnrollClick, onAdminClick }: NavProps) {
   const [open, setOpen] = useState(false);
   const [muted, setMuted] = useState(getMuteState());
   const topBarVisible = useScrollUpOrTop();
@@ -96,7 +97,18 @@ export default function Nav({ activeSection, onEnrollClick }: NavProps) {
         </ul>
 
         {/* CTA */}
-        <div className="hidden items-center gap-4 md:flex shrink-0">
+        <div className="hidden items-center gap-3 md:flex shrink-0">
+          {onAdminClick && (
+            <button
+              onClick={() => {
+                playTick();
+                onAdminClick();
+              }}
+              className="text-[11px] font-mono font-bold uppercase tracking-wider text-teal-600 hover:text-teal-500 cursor-pointer px-3 py-2 hover:bg-slate-50 rounded-full transition-all shrink-0"
+            >
+              Admin Portal
+            </button>
+          )}
           <button
             onClick={() => {
               playTick();
@@ -155,6 +167,20 @@ export default function Nav({ activeSection, onEnrollClick }: NavProps) {
                 </li>
               );
             })}
+            {onAdminClick && (
+              <li className="mt-2 pt-2 border-t border-slate-100">
+                <button
+                  onClick={() => {
+                    playTick();
+                    setOpen(false);
+                    onAdminClick();
+                  }}
+                  className="flex w-full items-center justify-center rounded-full border border-teal/20 py-2.5 font-mono text-[11px] font-bold uppercase tracking-wider text-teal-600 hover:bg-slate-50 cursor-pointer"
+                >
+                  Admin Portal
+                </button>
+              </li>
+            )}
             <li className="mt-2 pt-2">
               <button
                 onClick={() => {
@@ -164,7 +190,7 @@ export default function Nav({ activeSection, onEnrollClick }: NavProps) {
                 }}
                 className="flex w-full items-center justify-center rounded-full bg-primary py-3 font-mono text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-primary-light cursor-pointer"
               >
-                Enroll Now
+                {settings.branding.enrollCta || "Enroll Now"}
               </button>
             </li>
           </ul>

@@ -21,6 +21,7 @@ export type SiteSettings = {
     primaryStrong: string;
     headingFont?: string;
     bodyFont?: string;
+    enrollCta?: string;
   };
   contact: {
     email: string;

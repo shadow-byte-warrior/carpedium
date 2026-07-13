@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { toast, confirm } from "@/lib/toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { Loader2, Plus, Edit, Trash2, Globe, Lock, BookOpen, Copy, Eye, Clock, Star, Users, FolderGit2, Award, Calendar } from "lucide-react";
@@ -135,10 +136,11 @@ export default function CoursesManager() {
   useEffect(() => { setPage(1); }, [search, filters, sort]);
 
   const handleDelete = async (id: string, title: string) => {
-    if (confirm(`Are you sure you want to delete "${title}"?`)) {
+    const yes = await confirm({ title: `Delete "${title}"?`, message: "This action cannot be undone.", danger: true, confirmLabel: "Delete" });
+    if (yes) {
       const { error } = await supabase.from('courses').delete().eq('id', id);
-      if (error) alert("Error deleting course: " + error.message);
-      else refetch();
+      if (error) toast.error("Error deleting course: " + error.message);
+      else { toast.success("Course deleted."); refetch(); }
     }
   };
 
@@ -148,25 +150,26 @@ export default function CoursesManager() {
       is_published: next,
       status: next ? 'published' : 'draft'
     }).eq('id', id);
-    if (error) alert("Error toggling publish: " + error.message);
-    else refetch();
+    if (error) toast.error("Error toggling publish: " + error.message);
+    else { toast.success(next ? "Course published." : "Course unpublished."); refetch(); }
   };
 
   const handleBulkAction = async (action: "delete" | "publish" | "archive" | "export") => {
     if (checked.size === 0) return;
     if (action === "delete") {
-      if (!confirm(`Delete ${checked.size} selected course(s)?`)) return;
+      const yes = await confirm({ title: `Delete ${checked.size} course(s)?`, message: "This action cannot be undone.", danger: true, confirmLabel: "Delete All" });
+      if (!yes) return;
       const { error } = await supabase.from("courses").delete().in("id", Array.from(checked));
-      if (error) alert("Error: " + error.message);
-      else { setChecked(new Set()); refetch(); }
+      if (error) toast.error("Error: " + error.message);
+      else { toast.success(`${checked.size} course(s) deleted.`); setChecked(new Set()); refetch(); }
     } else if (action === "publish") {
       const { error } = await supabase.from("courses").update({ is_published: true, status: "published" }).in("id", Array.from(checked));
-      if (error) alert("Error: " + error.message);
-      else { setChecked(new Set()); refetch(); }
+      if (error) toast.error("Error: " + error.message);
+      else { toast.success(`${checked.size} course(s) published.`); setChecked(new Set()); refetch(); }
     } else if (action === "archive") {
       const { error } = await supabase.from("courses").update({ is_published: false, status: "draft" }).in("id", Array.from(checked));
-      if (error) alert("Error: " + error.message);
-      else { setChecked(new Set()); refetch(); }
+      if (error) toast.error("Error: " + error.message);
+      else { toast.success(`${checked.size} course(s) archived.`); setChecked(new Set()); refetch(); }
     } else if (action === "export") {
       exportCSV();
     }
@@ -186,8 +189,8 @@ export default function CoursesManager() {
     copy.status = 'draft';
     
     const { error } = await supabase.from("courses").insert(copy);
-    if (error) alert("Error duplicating: " + error.message);
-    else refetch();
+    if (error) toast.error("Error duplicating: " + error.message);
+    else { toast.success("Course duplicated."); refetch(); }
   };
 
   const handleEdit = (course: Course) => {

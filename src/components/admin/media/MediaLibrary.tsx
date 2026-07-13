@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from "react";
+import { toast, confirm } from "@/lib/toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { Loader2, UploadCloud, Trash2, Copy, CheckCircle2, Image as ImageIcon, FileText, Video, Eye, Calendar, HardDrive } from "lucide-react";
@@ -68,31 +69,33 @@ export default function MediaLibrary() {
       if (fileInputRef.current) fileInputRef.current.value = '';
       refetch();
     } catch (error: any) {
-      alert("Error uploading file: " + error.message);
+      toast.error("Error uploading file: " + error.message);
     } finally {
       setUploading(false);
     }
   };
 
   const handleDelete = async (fileName: string) => {
-    if (!confirm("Are you sure you want to delete this file? This may break images on the live site if they are currently being used.")) return;
-    
+    const yes = await confirm({ title: "Delete this file?", message: "This may break images on the live site if they are currently in use.", danger: true, confirmLabel: "Delete" });
+    if (!yes) return;
     try {
       const { error } = await supabase.storage.from('media').remove([fileName]);
       if (error) throw error;
+      toast.success("File deleted.");
       refetch();
     } catch (error: any) {
-      alert("Error deleting file: " + error.message);
+      toast.error("Error deleting file: " + error.message);
     }
   };
 
   const handleBulkAction = async (action: "delete" | "publish" | "archive" | "export") => {
     if (checked.size === 0) return;
     if (action === "delete") {
-      if (!confirm(`Delete ${checked.size} selected file(s)? This may break pages using them.`)) return;
+      const yes = await confirm({ title: `Delete ${checked.size} file(s)?`, message: "This may break pages currently using these files.", danger: true, confirmLabel: "Delete All" });
+      if (!yes) return;
       const { error } = await supabase.storage.from('media').remove(Array.from(checked));
-      if (error) alert("Error deleting: " + error.message);
-      else { setChecked(new Set()); refetch(); }
+      if (error) toast.error("Error deleting: " + error.message);
+      else { toast.success(`${checked.size} file(s) deleted.`); setChecked(new Set()); refetch(); }
     }
   };
 

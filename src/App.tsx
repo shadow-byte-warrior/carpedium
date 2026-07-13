@@ -171,6 +171,7 @@ export default function App() {
             <Nav
               activeSection={activeSection}
               onEnrollClick={() => handleEnrollClick()}
+              onAdminClick={() => setView("admin")}
             />
             <main className="flex-1">
               {view === "success" && registrationData ? (

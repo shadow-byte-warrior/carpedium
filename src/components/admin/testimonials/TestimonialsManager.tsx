@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { toast, confirm } from "@/lib/toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { Loader2, Plus, Edit, Trash2, MessageSquare, Globe, Lock, Star, Video, Copy, Eye } from "lucide-react";
@@ -112,35 +113,37 @@ export default function TestimonialsManager() {
   useEffect(() => { setPage(1); }, [search, filters, sort]);
 
   const handleDelete = async (id: string, name: string) => {
-    if (confirm(`Are you sure you want to delete testimonial from "${name}"?`)) {
+    const yes = await confirm({ title: `Delete testimonial from "${name}"?`, message: "This action cannot be undone.", danger: true, confirmLabel: "Delete" });
+    if (yes) {
       const { error } = await supabase.from("testimonials").delete().eq("id", id);
-      if (error) alert("Error deleting testimonial: " + error.message);
-      else refetch();
+      if (error) toast.error("Error deleting testimonial: " + error.message);
+      else { toast.success("Testimonial deleted."); refetch(); }
     }
   };
 
   const handleTogglePublish = async (id: string, current: string | null) => {
     const next = current === "published" ? "draft" : "published";
     const { error } = await supabase.from("testimonials").update({ status: next }).eq("id", id);
-    if (error) alert("Error updating status: " + error.message);
-    else refetch();
+    if (error) toast.error("Error updating status: " + error.message);
+    else { toast.success(`Testimonial ${next === "published" ? "published" : "unpublished"}.`); refetch(); }
   };
 
   const handleBulkAction = async (action: "delete" | "publish" | "archive" | "export") => {
     if (checked.size === 0) return;
     if (action === "delete") {
-      if (!confirm(`Delete ${checked.size} selected testimonial(s)?`)) return;
+      const yes = await confirm({ title: `Delete ${checked.size} testimonial(s)?`, message: "This action cannot be undone.", danger: true, confirmLabel: "Delete All" });
+      if (!yes) return;
       const { error } = await supabase.from("testimonials").delete().in("id", Array.from(checked));
-      if (error) alert("Error: " + error.message);
-      else { setChecked(new Set()); refetch(); }
+      if (error) toast.error("Error: " + error.message);
+      else { toast.success(`${checked.size} testimonial(s) deleted.`); setChecked(new Set()); refetch(); }
     } else if (action === "publish") {
       const { error } = await supabase.from("testimonials").update({ status: "published" }).in("id", Array.from(checked));
-      if (error) alert("Error: " + error.message);
-      else { setChecked(new Set()); refetch(); }
+      if (error) toast.error("Error: " + error.message);
+      else { toast.success(`${checked.size} testimonial(s) published.`); setChecked(new Set()); refetch(); }
     } else if (action === "archive") {
       const { error } = await supabase.from("testimonials").update({ status: "draft" }).in("id", Array.from(checked));
-      if (error) alert("Error: " + error.message);
-      else { setChecked(new Set()); refetch(); }
+      if (error) toast.error("Error: " + error.message);
+      else { toast.success(`${checked.size} testimonial(s) archived.`); setChecked(new Set()); refetch(); }
     } else if (action === "export") {
       exportCSV();
     }
@@ -156,8 +159,8 @@ export default function TestimonialsManager() {
     copy.status = "draft";
     
     const { error } = await supabase.from("testimonials").insert(copy);
-    if (error) alert("Error duplicating: " + error.message);
-    else refetch();
+    if (error) toast.error("Error duplicating: " + error.message);
+    else { toast.success("Testimonial duplicated."); refetch(); }
   };
 
   const handleSuccess = () => {

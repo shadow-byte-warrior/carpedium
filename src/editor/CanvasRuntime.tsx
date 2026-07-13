@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ensureFontsFromCss, loadFontFamily } from "./fonts";
 import { initAutoTag } from "./autoTag";
 import { applyContentEdit, type ContentEditMap } from "./ContentOverrides";
+import { renderMarkdown } from "./markdownRenderer";
 
 const loadFont = (fontName: string, elementId: string, cssVarName1: string, cssVarName2: string, fallbackStack: string) => {
   if (!fontName) return;
@@ -284,6 +285,171 @@ export default function CanvasRuntime() {
       const target = (e.target as HTMLElement).closest("[data-edit-id]") as HTMLElement;
       if (target) {
         const kind = target.getAttribute("data-edit-kind");
+
+        // ── MARKDOWN editor overlay ────────────────────────────────────────
+        if (kind === "markdown") {
+          e.preventDefault();
+          saveOriginal(target);
+
+          // Build a full-screen overlay with a textarea
+          const overlay = document.createElement("div");
+          overlay.setAttribute("data-edit-ignore", "1");
+          overlay.style.cssText = [
+            "position:fixed",
+            "inset:0",
+            "z-index:2147483647",
+            "background:rgba(0,0,0,0.75)",
+            "display:flex",
+            "align-items:center",
+            "justify-content:center",
+            "backdrop-filter:blur(4px)",
+          ].join(";");
+
+          const panel = document.createElement("div");
+          panel.style.cssText = [
+            "background:#1e1e2e",
+            "color:#cdd6f4",
+            "border-radius:12px",
+            "padding:20px",
+            "width:min(720px,94vw)",
+            "max-height:88vh",
+            "display:flex",
+            "flex-direction:column",
+            "gap:12px",
+            "box-shadow:0 24px 80px rgba(0,0,0,0.6)",
+          ].join(";");
+
+          const header = document.createElement("div");
+          header.style.cssText = "display:flex;align-items:center;justify-content:space-between;";
+          header.innerHTML = `
+            <span style="font-family:monospace;font-size:13px;color:#89b4fa;font-weight:600;">✦ Markdown Editor — ${target.getAttribute("data-edit-name") || "Element"}</span>
+            <span style="font-size:11px;color:#6c7086;">Shift+Enter = new line &nbsp;|&nbsp; Esc = cancel</span>
+          `;
+
+          const textarea = document.createElement("textarea");
+          textarea.value = target.dataset.editOriginal ?? target.innerText ?? "";
+          textarea.spellcheck = false;
+          textarea.setAttribute("data-edit-ignore", "1");
+          textarea.style.cssText = [
+            "width:100%",
+            "min-height:260px",
+            "max-height:52vh",
+            "background:#181825",
+            "color:#cdd6f4",
+            "border:1.5px solid #313244",
+            "border-radius:8px",
+            "padding:14px 16px",
+            "font-family:'JetBrains Mono',monospace",
+            "font-size:13px",
+            "line-height:1.65",
+            "resize:vertical",
+            "outline:none",
+            "box-sizing:border-box",
+          ].join(";");
+
+          // Live preview pane
+          const preview = document.createElement("div");
+          preview.setAttribute("data-edit-ignore", "1");
+          preview.style.cssText = [
+            "background:#181825",
+            "border:1.5px solid #313244",
+            "border-radius:8px",
+            "padding:14px 16px",
+            "min-height:80px",
+            "max-height:28vh",
+            "overflow-y:auto",
+            "font-size:13px",
+            "line-height:1.7",
+            "color:#a6adc8",
+          ].join(";");
+          preview.innerHTML = renderMarkdown(textarea.value);
+
+          const previewLabel = document.createElement("p");
+          previewLabel.style.cssText = "margin:0;font-size:11px;color:#6c7086;font-family:monospace;";
+          previewLabel.textContent = "↑ Preview";
+
+          const btnRow = document.createElement("div");
+          btnRow.style.cssText = "display:flex;gap:8px;justify-content:flex-end;";
+
+          const cancelBtn = document.createElement("button");
+          cancelBtn.textContent = "Cancel";
+          cancelBtn.setAttribute("data-edit-ignore", "1");
+          cancelBtn.style.cssText = [
+            "padding:7px 18px",
+            "border-radius:6px",
+            "border:1px solid #313244",
+            "background:transparent",
+            "color:#a6adc8",
+            "cursor:pointer",
+            "font-size:13px",
+          ].join(";");
+
+          const saveBtn = document.createElement("button");
+          saveBtn.textContent = "Apply Markdown";
+          saveBtn.setAttribute("data-edit-ignore", "1");
+          saveBtn.style.cssText = [
+            "padding:7px 18px",
+            "border-radius:6px",
+            "border:none",
+            "background:#89b4fa",
+            "color:#1e1e2e",
+            "cursor:pointer",
+            "font-weight:600",
+            "font-size:13px",
+          ].join(";");
+
+          panel.appendChild(header);
+          panel.appendChild(textarea);
+          panel.appendChild(previewLabel);
+          panel.appendChild(preview);
+          panel.appendChild(btnRow);
+          btnRow.appendChild(cancelBtn);
+          btnRow.appendChild(saveBtn);
+          overlay.appendChild(panel);
+          document.body.appendChild(overlay);
+          setTimeout(() => textarea.focus(), 30);
+
+          // Live preview update
+          textarea.addEventListener("input", () => {
+            preview.innerHTML = renderMarkdown(textarea.value);
+          });
+
+          const closeOverlay = () => overlay.remove();
+
+          const commitMarkdown = () => {
+            const mdValue = textarea.value;
+            target.dataset.editDirty = "1";
+            applyContentEdit(target, { kind: "markdown", value: mdValue });
+            const path = target.getAttribute("data-edit-path") || "";
+            window.parent.postMessage(
+              {
+                type: "EDITOR_CONTENT",
+                path,
+                id: target.getAttribute("data-edit-id"),
+                kind: "markdown",
+                value: mdValue,
+              },
+              "*"
+            );
+            closeOverlay();
+          };
+
+          saveBtn.addEventListener("click", commitMarkdown);
+          cancelBtn.addEventListener("click", closeOverlay);
+          overlay.addEventListener("click", (ev) => {
+            if (ev.target === overlay) closeOverlay();
+          });
+          textarea.addEventListener("keydown", (ev: KeyboardEvent) => {
+            if (ev.key === "Escape") closeOverlay();
+            if (ev.key === "Enter" && !ev.shiftKey && ev.ctrlKey) {
+              ev.preventDefault();
+              commitMarkdown();
+            }
+          });
+          return;
+        }
+
+        // ── Inline text / heading / button / link edit ─────────────────────
         if (kind === "text" || kind === "heading" || kind === "button" || kind === "link") {
           e.preventDefault();
           saveOriginal(target);

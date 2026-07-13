@@ -163,18 +163,7 @@ export default function Footer({ onAdminClick }: FooterProps) {
         {/* Bottom Banner */}
         <div className="mt-10 flex flex-col gap-6 border-t border-slate-800 pt-8 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-6 text-xs text-slate-500 font-mono">
-            {onAdminClick && (
-              <button
-                type="button"
-                onClick={() => {
-                  playTick();
-                  onAdminClick();
-                }}
-                className="hover:text-teal-500 font-bold uppercase tracking-wider transition-colors cursor-pointer"
-              >
-                Admin Portal
-              </button>
-            )}
+
             <span
               data-edit-id="footer-copyright"
               data-edit-name="Footer Copyright"

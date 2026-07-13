@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast, confirm } from "@/lib/toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import {
@@ -226,12 +227,13 @@ function CrmPanel({ studentId, interactions }: { studentId: string; interactions
       student_id: studentId, type, notes, follow_up_date: followUp || null, lead_status: leadStatus || null,
     });
     setSaving(false);
-    if (error) alert(error.message);
+    if (error) toast.error(error.message);
     else { setNotes(""); setFollowUp(""); setLeadStatus(""); }
   };
 
   const del = async (id: string) => {
-    if (confirm("Delete this interaction?")) await supabase.from("student_interactions").delete().eq("id", id);
+    const yes = await confirm({ title: "Delete this interaction?", danger: true, confirmLabel: "Delete" });
+    if (yes) await supabase.from("student_interactions").delete().eq("id", id);
   };
 
   return (
@@ -305,7 +307,7 @@ function ErpPanel({ student, payments }: { student: StudentRow; payments: Paymen
       receipt_url: receipt || null,
     });
     setSaving(false);
-    if (error) alert(error.message);
+    if (error) toast.error(error.message);
     else { setAmount(""); setInstallment(""); setInvoice(""); setReceipt(""); setDate(""); }
   };
 

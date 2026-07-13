@@ -1,4 +1,5 @@
 "use client";
+import { toast } from "@/lib/toast";
 
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -112,9 +113,9 @@ export default function Studio() {
 
       if (overridesErr) throw overridesErr;
 
-      alert("Theme saved successfully!");
+      toast.success("Theme saved successfully!");
     } catch (e: any) {
-      alert(`Save error: ${e.message}`);
+      toast.error(`Save error: ${e.message}`);
     } finally {
       setIsSaving(false);
     }

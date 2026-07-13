@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "@/lib/toast";
 import { useEffect, useRef, useState } from "react";
 import { useEditorStore, overridesToCss } from "@/editor/editorStore";
 import { FONT_CATEGORIES } from "@/editor/fonts";
@@ -250,7 +251,7 @@ export default function Canvas() {
       const { data } = supabase.storage.from("media").getPublicUrl(name);
       if (data?.publicUrl) handleMediaChange(data.publicUrl);
     } catch (e: any) {
-      alert(`Upload failed: ${e.message || e}`);
+      toast.error(`Upload failed: ${e.message || e}`);
     } finally {
       setUploading(false);
     }
@@ -261,9 +262,9 @@ export default function Canvas() {
     const res = await publish();
     setIsPublishing(false);
     if (res.success) {
-      alert("Changes published successfully!");
+      toast.success("Changes published successfully!");
     } else {
-      alert(`Error publishing changes: ${res.error}`);
+      toast.error(`Error publishing changes: ${res.error}`);
     }
   };
 

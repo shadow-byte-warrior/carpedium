@@ -14,6 +14,7 @@
 import { useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { initAutoTag } from "./autoTag";
+import { renderMarkdown } from "./markdownRenderer";
 
 export type ContentEdit = { kind: string; value: string };
 export type ContentEditMap = Record<string, ContentEdit>;
@@ -41,6 +42,13 @@ export function applyContentEdit(el: HTMLElement, edit: ContentEdit) {
       video.load();
       video.play().catch(() => {});
     }
+    return;
+  }
+
+  if (kind === "markdown") {
+    if (el.isContentEditable) return;
+    const html = renderMarkdown(value);
+    if (el.innerHTML !== html) el.innerHTML = html;
     return;
   }
 
